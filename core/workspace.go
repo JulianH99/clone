@@ -3,7 +3,6 @@ package core
 import (
 	"errors"
 	"regexp"
-	"slices"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -21,19 +20,25 @@ type Workspaces struct {
 
 var isLetter = regexp.MustCompile("[a-z]+").MatchString
 
-func CheckWorkspaceInConfig(workspace string) (bool, error) {
+func CheckWorkspaceInConfig(workspaceName string) (*Workspace, error) {
 
-	if err := viper.ReadInConfig(); err != nil {
-		return false, err
+	var config Workspaces
+
+	viper.Unmarshal(&config)
+
+	workspaces := config.Workspaces
+
+	if len(workspaces) == 0 {
+		return nil, errors.New("No workspaces registered")
 	}
 
-	workspaces := viper.GetStringSlice("workspaces")
-
-	if slices.Contains(workspaces, workspace) {
-		return true, nil
+	for _, workspace := range workspaces {
+		if workspace.Name == workspaceName {
+			return &workspace, nil
+		}
 	}
 
-	return false, nil
+	return nil, nil
 }
 
 func ValidateWorkspaceFormat(workspace string) error {

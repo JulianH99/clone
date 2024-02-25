@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/JulianH99/clone/cmd/workspace"
@@ -19,21 +18,10 @@ var rootCmd = &cobra.Command{
 
 func Execute() error {
 
-	// if err := rootCmd.Execute(); err != nil {
-	//
-	// 	cobra.CheckErr(err)
-	//
-	// 	return err
-	//
-	// }
-	//
-	// return nil
 	return rootCmd.Execute()
 }
 
 func init() {
-
-	fmt.Println("Initializing commands")
 
 	initConfiguration()
 
@@ -54,10 +42,7 @@ func initConfiguration() {
 	viper.SetDefault("workspaces", []any{})
 	viper.SafeWriteConfig()
 
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	} else {
+	if err := viper.ReadInConfig(); err != nil {
 		cobra.CheckErr(err)
 	}
-
 }
