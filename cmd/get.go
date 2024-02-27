@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"github.com/JulianH99/clone/core"
+	"github.com/JulianH99/clone/validations"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +31,7 @@ var getCmd = &cobra.Command{
 
 		workspaceName, url := args[0], args[1]
 
-		workspaceInConfig, err := core.CheckWorkspaceInConfig(workspaceName)
+		workspaceInConfig, err := validations.CheckWorkspaceInConfig(workspaceName)
 
 		if err != nil {
 			return err
@@ -40,7 +41,7 @@ var getCmd = &cobra.Command{
 			return errors.New("The requested workspace does not exists, please add it to the config with `clone workspace` command")
 		}
 
-		validPath := core.CheckValidUrl(url)
+		validPath := validations.CheckValidUrl(url)
 
 		if !validPath {
 			return errors.New("repository url should only contain username/reponame")

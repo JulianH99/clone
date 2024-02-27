@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/JulianH99/clone/core"
+	"github.com/JulianH99/clone/validations"
 	"github.com/spf13/cobra"
 )
 
@@ -38,12 +39,12 @@ var WorkspaceCmd = &cobra.Command{
 		}
 
 		// validate workspace
-		if err := core.ValidateWorkspaceFormat(args[0]); err != nil {
+		if err := validations.ValidateWorkspaceFormat(args[0]); err != nil {
 			return err
 		}
 
 		// validate path
-		if err := core.ValidatePath(args[1]); err != nil {
+		if err := validations.ValidatePath(args[1]); err != nil {
 			return err
 		}
 

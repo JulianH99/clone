@@ -1,28 +1,19 @@
-package core
+package validations
 
 import (
 	"errors"
 	"regexp"
 	"strings"
 
+	"github.com/JulianH99/clone/core"
 	"github.com/spf13/viper"
 )
 
-type Workspace struct {
-	Name     string `mapstructure:"name" json:"name"`
-	Path     string `mapstructure:"path" json:"path"`
-	Hostname string `mapstructure:"hostName" json:"hostName"`
-}
-
-type Workspaces struct {
-	Workspaces []Workspace `mapstructure:"workspaces" json:"workspaces"`
-}
-
 var isLetter = regexp.MustCompile("[a-z]+").MatchString
 
-func CheckWorkspaceInConfig(workspaceName string) (*Workspace, error) {
+func CheckWorkspaceInConfig(workspaceName string) (*core.Workspace, error) {
 
-	var config Workspaces
+	var config core.Workspaces
 
 	viper.Unmarshal(&config)
 
