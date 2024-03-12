@@ -15,6 +15,10 @@ func (w *WorkspaceRequiredError) Error() string {
 	return "Workspace name is required"
 }
 
+func init() {
+	WorkspaceCmd.AddCommand(listWorkspacesCmd)
+}
+
 var WorkspaceCmd = &cobra.Command{
 	Use: "workspace [NAME] [PATH] [DOMAIN_POSTFIX]",
 	RunE: func(cmd *cobra.Command, args []string) error {

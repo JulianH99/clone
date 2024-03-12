@@ -27,3 +27,9 @@ func SaveWorkspace(workspace Workspace) error {
 
 	return nil
 }
+
+func GetWorkspaces() []Workspace {
+	var config Workspaces
+	viper.Unmarshal(&config)
+	return config.Workspaces
+}
