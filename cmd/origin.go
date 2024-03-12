@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var remoteName string = "origin"
+
 var originCmd = &cobra.Command{
 	Use:   "origin [Workspace] [Url]",
 	Short: "Set the default git origin",
@@ -41,12 +43,16 @@ var originCmd = &cobra.Command{
 			return errors.New("Repository url should only contain username/repository")
 		}
 
-		fmt.Println("Setting default git origin")
+		fmt.Println("Setting remote", remoteName, "to workspace", workspaceInConfig.Name, "for repo", url)
 
-		if err := core.SetOrigin(*workspaceInConfig, url); err != nil {
+		if err := core.SetOrigin(*workspaceInConfig, url, remoteName); err != nil {
 			return err
 		}
 
 		return nil
 	},
+}
+
+func init() {
+	originCmd.Flags().StringVarP(&remoteName, "remote", "r", "", "Specify the remote name")
 }

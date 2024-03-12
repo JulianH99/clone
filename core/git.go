@@ -47,8 +47,13 @@ func CloneRepository(workspace Workspace, url string, subfolder string) error {
 	return nil
 }
 
-func SetOrigin(workspace Workspace, url string) error {
+func SetOrigin(workspace Workspace, url string, remoteName string) error {
 	githubUrl := fmt.Sprintf(format, workspace.Hostname, url)
-	command := exec.Command("git", "remote", "set-url", "origin", githubUrl)
+
+	if remoteName == "" {
+		remoteName = "origin"
+	}
+
+	command := exec.Command("git", "remote", "add", remoteName, githubUrl)
 	return command.Run()
 }
