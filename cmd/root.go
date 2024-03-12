@@ -27,6 +27,7 @@ func init() {
 
 	rootCmd.AddCommand(getCmd)
 	rootCmd.AddCommand(workspace.WorkspaceCmd)
+	rootCmd.AddCommand(originCmd)
 
 }
 
