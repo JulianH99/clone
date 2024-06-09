@@ -4,24 +4,21 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "clone",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Short: "Clone github projects to a saved workspace using a registered custom domain from your ssh config file",
+	Long:  ``,
+	// RunE: func(cmd *cobra.Command, args []string) error {
+	// 	return nil
+	// },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -42,5 +39,17 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	viper.SetConfigName("clone")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("$HOME/.config/")
+	viper.SafeWriteConfig()
+	emptyArray := make([]any, 0)
+	viper.SetDefault("workspaces", emptyArray)
+
+	err := viper.ReadInConfig()
+
+	if err != nil {
+		fmt.Println("error reading config file. please check your .config path", err)
+	}
+
 }
