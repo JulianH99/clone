@@ -5,6 +5,7 @@ go 1.22.3
 require (
 	github.com/charmbracelet/bubbles v0.18.0
 	github.com/charmbracelet/huh v0.4.2
+	github.com/charmbracelet/huh/spinner v0.0.0-20240608175402-5b41f0b45136
 	github.com/charmbracelet/lipgloss v0.11.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.19.0

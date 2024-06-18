@@ -1,7 +1,5 @@
 package internal
 
-import "fmt"
-
 type workspace struct {
 	Name string `yaml:"name"`
 	Path string `yaml:"path"`
@@ -10,18 +8,6 @@ type workspace struct {
 
 func NewWorkspace(name, path, host string) workspace {
 	return workspace{name, path, host}
-}
-
-func (w workspace) SaveWorkspace() error {
-	ws := GetConfig().Workspaces
-	fmt.Println("available workspaces", ws)
-	ws = append(ws, w)
-
-	err := writeNewWorkspaces(ws)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func WorkspacesToNames(workspaces []workspace) []string {
