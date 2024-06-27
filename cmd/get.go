@@ -16,6 +16,106 @@ import (
 
 var subDirectory string
 
+type cloneOptions struct {
+	path string
+	host string
+}
+
+// Generates a custom configuration form
+// and returns the selected host and path to clone the repository into
+func customConfigForm() (*cloneOptions, error) {
+	hosts, err := internal.SshHosts()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		localPath      string
+		host           string
+		hostsAsOptions = make([]huh.Option[string], len(hosts)+1)
+	)
+
+	hostsAsOptions[0] = huh.NewOption("None", "")
+
+	fmt.Println("subdir", subDirectory)
+
+	for i, host := range hosts {
+		hostsAsOptions[i+1] = huh.NewOption(string(host), string(host))
+	}
+
+	customConfigForm := huh.NewForm(
+		huh.NewGroup(
+			huh.NewInput().
+				Title("Path").
+				Value(&localPath).
+				Validate(func(s string) error {
+					isDir, err := internal.IsEmptyDir(s)
+
+					if err != nil {
+						return err
+					}
+
+					if !isDir {
+						return errors.New("Path provided does not point to an empty directory")
+					}
+					return nil
+				}),
+			huh.NewSelect[string]().
+				Title("Ssh host").
+				Value(&host).
+				Options(
+					hostsAsOptions...,
+				),
+		),
+	)
+
+	err = customConfigForm.Run()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &cloneOptions{path: localPath, host: host}, nil
+}
+
+func savedConfigForm() (*cloneOptions, error) {
+	var (
+		workspaces          = internal.GetConfig().Workspaces
+		workspacesAsOptions = make([]huh.Option[int], len(workspaces))
+		workspace           int
+	)
+
+	for i, workspace := range workspaces {
+		workspacesAsOptions[i] = huh.NewOption(
+			fmt.Sprintf("%s => %s", workspace.Name, workspace.Path),
+			i,
+		)
+	}
+
+	savedConfigurtionForm := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[int]().
+				Title("Workspace").
+				Options(workspacesAsOptions...).
+				Value(&workspace),
+			huh.NewInput().
+				Title("Subdirectory").
+				Description("You can specify a subdirectory in which the project will be cloned inside the chosen workspace").
+				Value(&subDirectory),
+		),
+	)
+
+	err := savedConfigurtionForm.Run()
+	if err != nil {
+		return nil, err
+	}
+
+	chosenWorkspace := workspaces[workspace]
+
+	return &cloneOptions{path: chosenWorkspace.Path, host: chosenWorkspace.Host}, nil
+}
+
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get",
@@ -32,6 +132,9 @@ var getCmd = &cobra.Command{
 			configCustom  = "custom"
 			configSaved   = "saved"
 			configuration string
+
+			// form result
+			cloneOptions *cloneOptions
 		)
 
 		fmt.Println("Clonning ", url)
@@ -55,129 +158,30 @@ var getCmd = &cobra.Command{
 		}
 
 		if configuration == configCustom {
-			hosts, err := internal.SshHosts()
-
-			if err != nil {
-				return err
-			}
-
-			var (
-				localPath      string
-				host           string
-				hostsAsOptions = make([]huh.Option[string], len(hosts)+1)
-			)
-
-			hostsAsOptions[0] = huh.NewOption("None", "")
-
-			fmt.Println("subdir", subDirectory)
-
-			for i, host := range hosts {
-				hostsAsOptions[i+1] = huh.NewOption(string(host), string(host))
-			}
-
-			customConfigForm := huh.NewForm(
-				huh.NewGroup(
-					huh.NewInput().
-						Title("Path").
-						Value(&localPath).
-						Validate(func(s string) error {
-							isDir, err := internal.IsEmptyDir(s)
-
-							if err != nil {
-								return err
-							}
-
-							if !isDir {
-								return errors.New("Path provided does not point to an empty directory")
-							}
-							return nil
-						}),
-					huh.NewSelect[string]().
-						Title("Ssh host").
-						Value(&host).
-						Options(
-							hostsAsOptions...,
-						),
-				),
-			)
-
-			err = customConfigForm.Run()
-
-			if err != nil {
-				return err
-			}
-
-			if host != "" {
-				url = internal.ReplaceHost(url, host)
-			}
-
-			if subDirectory != "" {
-				localPath = path.Join(localPath, subDirectory)
-			}
-
-			localPath = internal.ExpandHome(localPath)
-
-			err = spinner.New().Title(fmt.Sprintf("Cloning repository to path %s", localPath)).Action(func() {
-				if err := internal.Clone(url, localPath); err != nil {
-					fmt.Println("Error running git clone", err)
-				}
-			}).Run()
-
-			if err != nil {
-				return err
-			}
-
+			cloneOptions, err = customConfigForm()
 		} else {
-			var (
-				workspaces          = internal.GetConfig().Workspaces
-				workspacesAsOptions = make([]huh.Option[int], len(workspaces))
-				workspace           int
-				localPath           string
-			)
-
-			for i, workspace := range workspaces {
-				workspacesAsOptions[i] = huh.NewOption(
-					fmt.Sprintf("%s => %s", workspace.Name, workspace.Path),
-					i,
-				)
-			}
-
-			savedConfigurtionForm := huh.NewForm(
-				huh.NewGroup(
-					huh.NewSelect[int]().
-						Title("Workspace").
-						Options(workspacesAsOptions...).
-						Value(&workspace),
-					huh.NewInput().
-						Title("Subdirectory").
-						Description("You can specify a subdirectory in which the project will be cloned inside the chosen workspace").
-						Value(&subDirectory),
-				),
-			)
-
-			err = savedConfigurtionForm.Run()
-			if err != nil {
-				return err
-			}
-
-			chosenWorkspace := workspaces[workspace]
-			localPath = internal.ExpandHome(chosenWorkspace.Path)
-
-			if subDirectory != "" {
-				localPath = path.Join(localPath, subDirectory)
-			}
-
-			url = internal.ReplaceHost(url, chosenWorkspace.Host)
-			err = spinner.New().Title(fmt.Sprintf("Cloning repository to path %s", localPath)).Action(func() {
-				if err := internal.Clone(url, localPath); err != nil {
-					fmt.Println("Error running git clone", err)
-				}
-			}).Run()
-
-			if err != nil {
-				return err
-			}
+			cloneOptions, err = savedConfigForm()
 		}
+
+		if err != nil {
+			return err
+		}
+
+		if subDirectory != "" {
+			cloneOptions.path = path.Join(cloneOptions.path, subDirectory)
+		}
+
+		cloneOptions.path = internal.ExpandHome(cloneOptions.path)
+		if cloneOptions.host != "" {
+			url = internal.ReplaceHost(url, cloneOptions.host)
+		}
+
+		err = spinner.New().Title(fmt.Sprintf("Cloning repository to path %s", cloneOptions.path)).Action(func() {
+			if err := internal.Clone(url, cloneOptions.path); err != nil {
+				fmt.Println("Error running git clone", err)
+			}
+			fmt.Println("Done")
+		}).Run()
 
 		return nil
 	},
