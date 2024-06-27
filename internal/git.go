@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -8,13 +9,19 @@ import (
 // clone a repository to the given path
 func Clone(repository string, path string) error {
 
+	commandStr := fmt.Sprintf("git clone %s %s", repository, path)
+	fmt.Println(commandStr)
+
 	command := exec.Command("git", "clone", repository, path)
 
-	_, err := command.Output()
+	output, err := command.Output()
 
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
+
+	fmt.Println(output)
 
 	return nil
 
@@ -26,7 +33,7 @@ func ReplaceHost(repository string, host string) string {
 	var (
 		atSign    = strings.Index(repository, "@")
 		colonSign = strings.Index(repository, ":")
-		oldHost   = repository[atSign:colonSign]
+		oldHost   = repository[atSign+1 : colonSign]
 	)
 
 	return strings.Replace(repository, oldHost, host, 1)

@@ -48,7 +48,11 @@ var getCmd = &cobra.Command{
 			),
 		)
 
-		initialForm.Run()
+		err := initialForm.Run()
+
+		if err != nil {
+			return err
+		}
 
 		if configuration == configCustom {
 			hosts, err := internal.SshHosts()
@@ -77,14 +81,14 @@ var getCmd = &cobra.Command{
 						Title("Path").
 						Value(&localPath).
 						Validate(func(s string) error {
-							isDir, err := internal.IsDir(s)
+							isDir, err := internal.IsEmptyDir(s)
 
 							if err != nil {
 								return err
 							}
 
 							if !isDir {
-								return errors.New("Path provided is not a directory")
+								return errors.New("Path provided does not point to an empty directory")
 							}
 							return nil
 						}),
@@ -97,7 +101,11 @@ var getCmd = &cobra.Command{
 				),
 			)
 
-			customConfigForm.Run()
+			err = customConfigForm.Run()
+
+			if err != nil {
+				return err
+			}
 
 			if host != "" {
 				url = internal.ReplaceHost(url, host)
@@ -107,17 +115,24 @@ var getCmd = &cobra.Command{
 				localPath = path.Join(localPath, subDirectory)
 			}
 
-			spinner.New().Title(fmt.Sprintf("Cloning repository to path %s", localPath)).Action(func() {
+			localPath = internal.ExpandHome(localPath)
+
+			err = spinner.New().Title(fmt.Sprintf("Cloning repository to path %s", localPath)).Action(func() {
 				if err := internal.Clone(url, localPath); err != nil {
 					fmt.Println("Error running git clone", err)
 				}
 			}).Run()
+
+			if err != nil {
+				return err
+			}
 
 		} else {
 			var (
 				workspaces          = internal.GetConfig().Workspaces
 				workspacesAsOptions = make([]huh.Option[int], len(workspaces))
 				workspace           int
+				localPath           string
 			)
 
 			for i, workspace := range workspaces {
@@ -140,10 +155,28 @@ var getCmd = &cobra.Command{
 				),
 			)
 
-			savedConfigurtionForm.Run()
+			err = savedConfigurtionForm.Run()
+			if err != nil {
+				return err
+			}
 
 			chosenWorkspace := workspaces[workspace]
-			fmt.Println("chosen workspace", workspace, chosenWorkspace)
+			localPath = internal.ExpandHome(chosenWorkspace.Path)
+
+			if subDirectory != "" {
+				localPath = path.Join(localPath, subDirectory)
+			}
+
+			url = internal.ReplaceHost(url, chosenWorkspace.Host)
+			err = spinner.New().Title(fmt.Sprintf("Cloning repository to path %s", localPath)).Action(func() {
+				if err := internal.Clone(url, localPath); err != nil {
+					fmt.Println("Error running git clone", err)
+				}
+			}).Run()
+
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
