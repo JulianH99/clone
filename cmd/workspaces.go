@@ -10,7 +10,7 @@ import (
 // workspacesCmd represents the workspaces command
 var workspacesCmd = &cobra.Command{
 	Use:   "workspaces",
-	Short: "A brief description of your command",
+	Short: "Manage workspaces (collections of a path and a host)",
 }
 
 func init() {

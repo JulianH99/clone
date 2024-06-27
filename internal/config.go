@@ -20,3 +20,9 @@ func AddNewWorkspace(newW workspace) error {
 	viper.Set("workspaces", workspaces)
 	return viper.WriteConfig()
 }
+
+func RemoveWorkspace(workspaceIndex int, workspaces []workspace) error {
+	newWorkspaces := append(workspaces[:workspaceIndex], workspaces[workspaceIndex+1:]...)
+	viper.Set("workspaces", newWorkspaces)
+	return viper.WriteConfig()
+}
