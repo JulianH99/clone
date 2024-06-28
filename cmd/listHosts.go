@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -12,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// listHostsCmd represents the listHosts command
+// listHostsCmd represents the list hosts command
 var listHostsCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available hosts",
@@ -49,14 +46,4 @@ var listHostsCmd = &cobra.Command{
 
 func init() {
 	hostsCmd.AddCommand(listHostsCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listHostsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listHostsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

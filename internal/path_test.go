@@ -6,12 +6,11 @@ import (
 )
 
 func TestExpandHome(t *testing.T) {
-
 	homedir, _ := os.UserHomeDir()
 	testPath := "~/Documents/projects/personal/"
 	expected := homedir + "/Documents/projects/personal/"
 
-	newPath := expandHome(testPath)
+	newPath := ExpandHome(testPath)
 
 	if newPath != expected {
 		t.Errorf("expected %s got %s", expected, newPath)

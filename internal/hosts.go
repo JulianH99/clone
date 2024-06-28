@@ -3,6 +3,7 @@ package internal
 import (
 	"os"
 	"path"
+	"regexp"
 	"strings"
 )
 
@@ -11,9 +12,11 @@ type host string
 func parseConfigFile(contents []byte) []host {
 	lines := strings.Split(string(contents), "\n")
 	hosts := make([]host, 0)
+	hostsRegex := regexp.MustCompile(`(?i)host\s`)
 
 	for _, line := range lines {
-		if strings.HasPrefix(line, "Host ") {
+		line = strings.TrimSpace(line)
+		if hostsRegex.Match([]byte(line)) {
 			parts := strings.Split(line, " ")
 			h := strings.TrimSpace(parts[1])
 			hosts = append(hosts, host(h))

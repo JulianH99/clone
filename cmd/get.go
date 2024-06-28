@@ -38,8 +38,6 @@ func customConfigForm() (*cloneOptions, error) {
 
 	hostsAsOptions[0] = huh.NewOption("None", "")
 
-	fmt.Println("subdir", subDirectory)
-
 	for i, host := range hosts {
 		hostsAsOptions[i+1] = huh.NewOption(string(host), string(host))
 	}
@@ -125,6 +123,10 @@ var getCmd = &cobra.Command{
 			return errors.New("You need to provide a valid git ssh url")
 		}
 
+		if !internal.CheckValidSshUrl(args[0]) {
+			return fmt.Errorf("%s is not a valid ssh url. You must comply with the format: git@[host]:[user]/[repo].git", args[0])
+		}
+
 		var (
 			url = args[0]
 
@@ -172,9 +174,7 @@ var getCmd = &cobra.Command{
 		}
 
 		cloneOptions.path = internal.ExpandHome(cloneOptions.path)
-		if cloneOptions.host != "" {
-			url = internal.ReplaceHost(url, cloneOptions.host)
-		}
+		url = internal.ReplaceHost(url, cloneOptions.host)
 
 		err = spinner.New().Title(fmt.Sprintf("Cloning repository to path %s", cloneOptions.path)).Action(func() {
 			if err := internal.Clone(url, cloneOptions.path); err != nil {
@@ -182,6 +182,10 @@ var getCmd = &cobra.Command{
 			}
 			fmt.Println("Done")
 		}).Run()
+
+		if err != nil {
+			return err
+		}
 
 		return nil
 	},
