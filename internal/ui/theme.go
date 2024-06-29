@@ -6,14 +6,14 @@ import (
 )
 
 var (
-	PrimaryColor lipgloss.Color = lipgloss.Color("#7571F9")
-	GreenColor   lipgloss.Color = lipgloss.Color("#02BF87")
+	PrimaryColor lipgloss.Color = lipgloss.Color("#2596be")
+	AccentColor  lipgloss.Color = lipgloss.Color("#f5f5fd")
 )
 
 func TableStyles() table.Styles {
 	s := table.DefaultStyles()
 
-	s.Header = s.Header.Foreground(GreenColor)
+	s.Header = s.Header.Foreground(AccentColor)
 	s.Selected = s.Cell.Padding(0)
 	s.Header = s.Header.
 		BorderStyle(lipgloss.NormalBorder()).

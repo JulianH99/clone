@@ -17,6 +17,6 @@ func InContainer(s string) string {
 
 func InColoredContainer(s string) string {
 	return baseContainer().
-		Foreground(GreenColor).
+		Foreground(AccentColor).
 		Render(s)
 }
