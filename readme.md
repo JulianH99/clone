@@ -30,6 +30,17 @@ it will store all the workspaces so you can check there as well if you want to
 have a look.
 
 
+## Building and installing
+
+As of now, the only way to use `clone` locally is to build it and install it.
+Luckily, it's very simple:
+1. Clone the repo with `git clone https://github.com/JulianH99/clone.git`
+2. `cd clone && go mod download`
+3. `go install`
+
+if you have your `$GOPATH` set up correctly, you should be able to run `clone`
+without issues
+
 ## Ussage
 
 There are several commands in `clone`:
