@@ -75,3 +75,7 @@ configurations will likely point to.
 ## Contributing
 if there's any feature you'd like to see implemented, feel free to open an
 issue. This project is still under development but I think it's stable enough
+
+## Planned features
+- [ ] Support for themes
+- [ ] Full TUI besides command support
