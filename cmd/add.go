@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -9,7 +6,10 @@ import (
 	"slices"
 
 	"github.com/JulianH99/clone/internal"
+	"github.com/JulianH99/clone/internal/config"
+	"github.com/JulianH99/clone/internal/dir"
 	"github.com/JulianH99/clone/internal/ui"
+	"github.com/JulianH99/clone/internal/workspaces"
 	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 )
@@ -20,7 +20,7 @@ var addCmd = &cobra.Command{
 	Short: "Adds a new workspace into the configuration",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		hosts, err := internal.SshHosts()
-		workspaces := internal.WorkspacesToNames(internal.GetConfig().Workspaces)
+		workspaceList := workspaces.WorkspacesToNames(config.GetConfig().Workspaces)
 
 		if err != nil {
 			return err
@@ -49,7 +49,7 @@ var addCmd = &cobra.Command{
 							return errors.New("Value cannot be empty")
 						}
 
-						if slices.Contains(workspaces, s) {
+						if slices.Contains(workspaceList, s) {
 							return errors.New("Workspace name already in use")
 						}
 						return nil
@@ -58,7 +58,7 @@ var addCmd = &cobra.Command{
 					Title("Path").
 					Value(&path).
 					Validate(func(s string) error {
-						isDir, err := internal.IsDir(s)
+						isDir, err := dir.IsDir(s)
 
 						if err != nil {
 							return err
@@ -82,8 +82,8 @@ var addCmd = &cobra.Command{
 			return err
 		}
 
-		w := internal.NewWorkspace(name, path, host)
-		err = internal.AddNewWorkspace(w)
+		w := workspaces.NewWorkspace(name, path, host)
+		err = config.AddNewWorkspace(w)
 
 		if err != nil {
 			return err

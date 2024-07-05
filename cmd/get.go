@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -9,6 +6,8 @@ import (
 	"path"
 
 	"github.com/JulianH99/clone/internal"
+	"github.com/JulianH99/clone/internal/config"
+	"github.com/JulianH99/clone/internal/dir"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/spf13/cobra"
@@ -48,7 +47,7 @@ func customConfigForm() (*cloneOptions, error) {
 				Title("Path").
 				Value(&localPath).
 				Validate(func(s string) error {
-					isDir, err := internal.IsEmptyDir(s)
+					isDir, err := dir.IsEmptyDir(s)
 
 					if err != nil {
 						return err
@@ -79,7 +78,7 @@ func customConfigForm() (*cloneOptions, error) {
 
 func savedConfigForm() (*cloneOptions, error) {
 	var (
-		workspaces          = internal.GetConfig().Workspaces
+		workspaces          = config.GetConfig().Workspaces
 		workspacesAsOptions = make([]huh.Option[int], len(workspaces))
 		workspace           int
 	)
@@ -173,7 +172,7 @@ var getCmd = &cobra.Command{
 			cloneOptions.path = path.Join(cloneOptions.path, subDirectory)
 		}
 
-		cloneOptions.path = internal.ExpandHome(cloneOptions.path)
+		cloneOptions.path = dir.ExpandHome(cloneOptions.path)
 		url = internal.ReplaceHost(url, cloneOptions.host)
 
 		err = spinner.New().Title(fmt.Sprintf("Cloning repository to path %s", cloneOptions.path)).Action(func() {

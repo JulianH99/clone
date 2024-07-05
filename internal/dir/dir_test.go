@@ -1,8 +1,10 @@
-package internal
+package dir_test
 
 import (
 	"os"
 	"testing"
+
+	"github.com/JulianH99/clone/internal/dir"
 )
 
 func TestExpandHome(t *testing.T) {
@@ -10,7 +12,7 @@ func TestExpandHome(t *testing.T) {
 	testPath := "~/Documents/projects/personal/"
 	expected := homedir + "/Documents/projects/personal/"
 
-	newPath := ExpandHome(testPath)
+	newPath := dir.ExpandHome(testPath)
 
 	if newPath != expected {
 		t.Errorf("expected %s got %s", expected, newPath)
@@ -21,8 +23,8 @@ func TestEmptyOrNil(t *testing.T) {
 	testPath := "~/Documents"
 	testPath2 := "~/Documents/example"
 
-	t1, _ := IsEmptyDir(testPath)
-	t2, _ := IsEmptyDir(testPath2)
+	t1, _ := dir.IsEmptyDir(testPath)
+	t2, _ := dir.IsEmptyDir(testPath2)
 
 	if t1 != false {
 		t.Errorf("expected %t got %t", false, t1)

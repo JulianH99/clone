@@ -6,7 +6,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/JulianH99/clone/internal"
+	"github.com/JulianH99/clone/internal/config"
 	"github.com/JulianH99/clone/internal/ui"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/spf13/cobra"
@@ -17,7 +17,7 @@ var listWorkspacesCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List configured workspaces",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		workspaces := internal.GetConfig().Workspaces
+		workspaces := config.GetConfig().Workspaces
 
 		columns := []table.Column{
 			{Title: "Name", Width: 15},

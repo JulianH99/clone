@@ -1,27 +1,18 @@
-package internal
+package config
 
 import (
+	"github.com/JulianH99/clone/internal/workspaces"
 	"github.com/spf13/viper"
 )
 
-type config struct {
-	Workspaces []workspace `yaml:"workspaces"`
-}
-
-func GetConfig() config {
-	var c config
-	viper.Unmarshal(&c)
-	return c
-}
-
-func AddNewWorkspace(newW workspace) error {
+func AddNewWorkspace(newW workspaces.Workspace) error {
 	workspaces := GetConfig().Workspaces
 	workspaces = append(workspaces, newW)
 	viper.Set("workspaces", workspaces)
 	return viper.WriteConfig()
 }
 
-func RemoveWorkspace(workspaceIndex int, workspaces []workspace) error {
+func RemoveWorkspace(workspaceIndex int, workspaces []workspaces.Workspace) error {
 	newWorkspaces := append(workspaces[:workspaceIndex], workspaces[workspaceIndex+1:]...)
 	viper.Set("workspaces", newWorkspaces)
 	return viper.WriteConfig()

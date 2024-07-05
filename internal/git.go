@@ -9,9 +9,6 @@ import (
 
 // clone a repository to the given path
 func Clone(repository string, path string) error {
-	commandStr := fmt.Sprintf("git clone %s %s", repository, path)
-	fmt.Println(commandStr)
-
 	command := exec.Command("git", "clone", repository, path)
 
 	output, err := command.Output()
