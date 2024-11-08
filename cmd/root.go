@@ -15,7 +15,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "clone",
 	Short: "Clone github projects to a saved workspace using a registered custom domain from your ssh config file",
-	Long:  ``,
+	Long:  `Use clone [domainName] [gitUser]/[repoName] to clone to the current path`,
 }
 
 func Execute() {
