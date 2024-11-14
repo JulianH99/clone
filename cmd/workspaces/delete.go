@@ -1,4 +1,4 @@
-package cmd
+package workspaces
 
 import (
 	"fmt"
@@ -44,8 +44,4 @@ var deleteWorkspacesCmd = &cobra.Command{
 
 		return nil
 	},
-}
-
-func init() {
-	workspacesCmd.AddCommand(deleteWorkspacesCmd)
 }

@@ -1,11 +1,10 @@
-package cmd
+package workspaces
 
 import (
 	"errors"
 	"fmt"
 	"slices"
 
-	"github.com/JulianH99/clone/internal"
 	"github.com/JulianH99/clone/internal/config"
 	"github.com/JulianH99/clone/internal/dir"
 	"github.com/JulianH99/clone/internal/ui"
@@ -19,25 +18,15 @@ var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Adds a new workspace into the configuration",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		hosts, err := internal.SshHosts()
 		workspaceList := workspaces.WorkspacesToNames(config.GetConfig().Workspaces)
-
-		if err != nil {
-			return err
-		}
 
 		var (
 			name string
 			path string
-			host string
 		)
 
 		hostAsOptions := make([]huh.Option[string], 0)
 		hostAsOptions = append(hostAsOptions, huh.NewOption("None", ""))
-
-		for _, host := range hosts {
-			hostAsOptions = append(hostAsOptions, huh.NewOption(string(host), string(host)))
-		}
 
 		form := huh.NewForm(
 			huh.NewGroup(
@@ -69,20 +58,16 @@ var addCmd = &cobra.Command{
 						}
 						return nil
 					}),
-				huh.NewSelect[string]().
-					Title("What host would ou like to use?").
-					Options(hostAsOptions...).
-					Value(&host),
 			),
 		)
 
-		err = form.Run()
+		err := form.Run()
 
 		if err != nil {
 			return err
 		}
 
-		w := workspaces.NewWorkspace(name, path, host)
+		w := workspaces.NewWorkspace(name, path)
 		err = config.AddNewWorkspace(w)
 
 		if err != nil {
@@ -93,18 +78,4 @@ var addCmd = &cobra.Command{
 
 		return nil
 	},
-}
-
-func init() {
-	workspacesCmd.AddCommand(addCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// addCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// addCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

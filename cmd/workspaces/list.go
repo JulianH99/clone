@@ -1,7 +1,7 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 */
-package cmd
+package workspaces
 
 import (
 	"fmt"
@@ -19,15 +19,19 @@ var listWorkspacesCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		workspaces := config.GetConfig().Workspaces
 
+		if len(workspaces) == 0 {
+			fmt.Println(ui.InContainer("No workspaces. Use clone workspaces add to create a new workspace"))
+			return nil
+		}
+
 		columns := []table.Column{
 			{Title: "Name", Width: 15},
 			{Title: "Path", Width: 30},
-			{Title: "Host", Width: 20},
 		}
 
 		rows := []table.Row{}
 		for _, w := range workspaces {
-			rows = append(rows, table.Row{w.Name, w.Path, w.Host})
+			rows = append(rows, table.Row{w.Name, w.Path})
 		}
 
 		t := table.New(
@@ -41,18 +45,4 @@ var listWorkspacesCmd = &cobra.Command{
 		fmt.Print(ui.InContainer(t.View()))
 		return nil
 	},
-}
-
-func init() {
-	workspacesCmd.AddCommand(listWorkspacesCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listWorkspacesCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listWorkspacesCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

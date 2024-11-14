@@ -7,19 +7,21 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/JulianH99/clone/cmd/hosts"
+	"github.com/JulianH99/clone/cmd/workspaces"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
+// RootCmd represents the base command when called without any subcommands
+var RootCmd = &cobra.Command{
 	Use:   "clone",
 	Short: "Clone github projects to a saved workspace using a registered custom domain from your ssh config file",
 	Long:  `Use clone [domainName] [gitUser]/[repoName] to clone to the current path`,
 }
 
 func Execute() {
-	err := rootCmd.Execute()
+	err := RootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
@@ -38,5 +40,8 @@ func init() {
 	if err != nil {
 		fmt.Println("error reading config file. please check your .config path", err)
 	}
+
+	RootCmd.AddCommand(hosts.HostsCmd)
+	RootCmd.AddCommand(workspaces.WorkspacesCmd)
 
 }
