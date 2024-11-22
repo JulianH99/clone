@@ -17,4 +17,5 @@ func init() {
 	WorkspacesCmd.AddCommand(listWorkspacesCmd)
 	WorkspacesCmd.AddCommand(addCmd)
 	WorkspacesCmd.AddCommand(deleteWorkspacesCmd)
+	WorkspacesCmd.AddCommand(editCmd)
 }

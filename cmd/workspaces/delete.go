@@ -19,6 +19,10 @@ var deleteWorkspacesCmd = &cobra.Command{
 			workspace  int
 		)
 
+		if len(workspaces) == 0 {
+			fmt.Println(ui.InContainer("No workspaces to delete"))
+		}
+
 		for i, w := range workspaces {
 			options[i] = huh.NewOption(fmt.Sprintf("%s => %s", w.Name, w.Path), i)
 		}
