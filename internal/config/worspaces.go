@@ -17,3 +17,11 @@ func RemoveWorkspace(workspaceIndex int, workspaces []workspaces.Workspace) erro
 	viper.Set("workspaces", newWorkspaces)
 	return viper.WriteConfig()
 }
+
+func SetWorkspace(index int, workspace workspaces.Workspace) error {
+	currentWorkspaces := GetConfig().Workspaces
+	currentWorkspaces[index] = workspace
+
+	viper.Set("workspaces", currentWorkspaces)
+	return viper.WriteConfig()
+}

@@ -1,7 +1,8 @@
-package cmd
+package hosts
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/JulianH99/clone/internal"
 	"github.com/JulianH99/clone/internal/ui"
@@ -21,12 +22,18 @@ var listHostsCmd = &cobra.Command{
 
 		columns := []table.Column{
 			{Title: "Host", Width: 50},
+			{Title: "Custom hostname", Width: 50},
 		}
 
 		rows := []table.Row{}
 
 		for _, host := range hosts {
-			rows = append(rows, table.Row{string(host)})
+			hostParts := strings.Split(string(host), "-")
+			customHostName := hostParts[len(hostParts)-1]
+			if customHostName == string(host) {
+				customHostName = "-"
+			}
+			rows = append(rows, table.Row{string(host), customHostName})
 		}
 
 		t := table.New(
@@ -42,8 +49,4 @@ var listHostsCmd = &cobra.Command{
 
 		return nil
 	},
-}
-
-func init() {
-	hostsCmd.AddCommand(listHostsCmd)
 }

@@ -3,11 +3,10 @@ package workspaces
 type Workspace struct {
 	Name string `yaml:"name"`
 	Path string `yaml:"path"`
-	Host string `yaml:"host"`
 }
 
-func NewWorkspace(name, path, host string) Workspace {
-	return Workspace{name, path, host}
+func NewWorkspace(name, path string) Workspace {
+	return Workspace{name, path}
 }
 
 func WorkspacesToNames(workspaces []Workspace) []string {

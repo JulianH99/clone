@@ -1,4 +1,4 @@
-package cmd
+package workspaces
 
 import (
 	"fmt"
@@ -18,6 +18,10 @@ var deleteWorkspacesCmd = &cobra.Command{
 			options    = make([]huh.Option[int], len(workspaces))
 			workspace  int
 		)
+
+		if len(workspaces) == 0 {
+			fmt.Println(ui.InContainer("No workspaces to delete"))
+		}
 
 		for i, w := range workspaces {
 			options[i] = huh.NewOption(fmt.Sprintf("%s => %s", w.Name, w.Path), i)
@@ -44,8 +48,4 @@ var deleteWorkspacesCmd = &cobra.Command{
 
 		return nil
 	},
-}
-
-func init() {
-	workspacesCmd.AddCommand(deleteWorkspacesCmd)
 }

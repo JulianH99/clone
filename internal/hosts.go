@@ -16,6 +16,9 @@ func parseConfigFile(contents []byte) []host {
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
+		if len(line) > 0 && line[0] == '#' {
+			continue
+		}
 		if hostsRegex.Match([]byte(line)) {
 			parts := strings.Split(line, " ")
 			h := strings.TrimSpace(parts[1])

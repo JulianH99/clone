@@ -4,179 +4,63 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"slices"
+	"strings"
 
 	"github.com/JulianH99/clone/internal"
 	"github.com/JulianH99/clone/internal/config"
 	"github.com/JulianH99/clone/internal/dir"
-	"github.com/charmbracelet/huh"
+	"github.com/JulianH99/clone/internal/ui"
+	"github.com/JulianH99/clone/internal/workspaces"
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/spf13/cobra"
 )
 
-var subDirectory string
-
-type cloneOptions struct {
-	path string
-	host string
-}
-
-// Generates a custom configuration form
-// and returns the selected host and path to clone the repository into
-func customConfigForm() (*cloneOptions, error) {
-	hosts, err := internal.SshHosts()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var (
-		localPath      string
-		host           string
-		hostsAsOptions = make([]huh.Option[string], len(hosts)+1)
-	)
-
-	hostsAsOptions[0] = huh.NewOption("None", "")
-
-	for i, host := range hosts {
-		hostsAsOptions[i+1] = huh.NewOption(string(host), string(host))
-	}
-
-	customConfigForm := huh.NewForm(
-		huh.NewGroup(
-			huh.NewInput().
-				Title("Path").
-				Value(&localPath).
-				Validate(func(s string) error {
-					isDir, err := dir.IsEmptyDir(s)
-
-					if err != nil {
-						return err
-					}
-
-					if !isDir {
-						return errors.New("Path provided does not point to an empty directory")
-					}
-					return nil
-				}),
-			huh.NewSelect[string]().
-				Title("Ssh host").
-				Value(&host).
-				Options(
-					hostsAsOptions...,
-				),
-		),
-	)
-
-	err = customConfigForm.Run()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &cloneOptions{path: localPath, host: host}, nil
-}
-
-func savedConfigForm() (*cloneOptions, error) {
-	var (
-		workspaces          = config.GetConfig().Workspaces
-		workspacesAsOptions = make([]huh.Option[int], len(workspaces))
-		workspace           int
-	)
-
-	for i, workspace := range workspaces {
-		workspacesAsOptions[i] = huh.NewOption(
-			fmt.Sprintf("%s => %s", workspace.Name, workspace.Path),
-			i,
-		)
-	}
-
-	savedConfigurtionForm := huh.NewForm(
-		huh.NewGroup(
-			huh.NewSelect[int]().
-				Title("Workspace").
-				Options(workspacesAsOptions...).
-				Value(&workspace),
-			huh.NewInput().
-				Title("Subdirectory").
-				Description("You can specify a subdirectory in which the project will be cloned inside the chosen workspace").
-				Value(&subDirectory),
-		),
-	)
-
-	err := savedConfigurtionForm.Run()
-	if err != nil {
-		return nil, err
-	}
-
-	chosenWorkspace := workspaces[workspace]
-
-	return &cloneOptions{path: chosenWorkspace.Path, host: chosenWorkspace.Host}, nil
-}
+var (
+	customPath    string
+	workspaceName string
+)
 
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Clones a github repository",
+	Short: "Clones a github repository. Specify [domainName] [user]/[repoName]",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			return errors.New("You need to provide a valid git ssh url")
+		if len(args) < 2 {
+			return errors.New("Not enough parameters. Please specify [domainName] [user]/[repoName]")
 		}
 
-		if !internal.CheckValidSshUrl(args[0]) {
-			return fmt.Errorf("%s is not a valid ssh url. You must comply with the format: git@[host]:[user]/[repo].git", args[0])
+		domainName, repo := args[0], args[1]
+		repoParts := strings.Split(repo, "/")
+
+		githubSshUrl := fmt.Sprintf("git@github.com-%s:%s.git", domainName, repo)
+
+		fmt.Println("this are params", domainName, githubSshUrl)
+
+		if workspaceName != "" {
+			workspaceList := config.GetConfig().Workspaces
+			workspacesNames := workspaces.WorkspacesToNames(workspaceList)
+
+			if !slices.Contains(workspacesNames, workspaceName) {
+				return errors.New("No workspace with the provided name was found")
+			}
+
+			// workspace will be used over custom path if both flags are
+			// provided
+			for _, w := range workspaceList {
+				if w.Name == workspaceName {
+					customPath = w.Path
+				}
+			}
 		}
 
-		var (
-			url = args[0]
-
-			// initial form value
-			configCustom  = "custom"
-			configSaved   = "saved"
-			configuration string
-
-			// form result
-			cloneOptions *cloneOptions
-		)
-
-		fmt.Println("Clonning ", url)
-
-		initialForm := huh.NewForm(
-			huh.NewGroup(
-				huh.NewSelect[string]().
-					Title("Configuration choice").
-					Options(
-						huh.NewOption("New configuration (custom path and host)", configCustom),
-						huh.NewOption("Saved workspace configuration", configSaved),
-					).
-					Value(&configuration),
-			),
-		)
-
-		err := initialForm.Run()
-
-		if err != nil {
-			return err
+		if customPath != "" {
+			customPath = path.Join(dir.ExpandHome(customPath), repoParts[1])
+			fmt.Printf("%s\n", ui.InContainer(fmt.Sprintf("Cloning into path %s", customPath)))
 		}
 
-		if configuration == configCustom {
-			cloneOptions, err = customConfigForm()
-		} else {
-			cloneOptions, err = savedConfigForm()
-		}
-
-		if err != nil {
-			return err
-		}
-
-		if subDirectory != "" {
-			cloneOptions.path = path.Join(cloneOptions.path, subDirectory)
-		}
-
-		cloneOptions.path = dir.ExpandHome(cloneOptions.path)
-		url = internal.ReplaceHost(url, cloneOptions.host)
-
-		err = spinner.New().Title(fmt.Sprintf("Cloning repository to path %s", cloneOptions.path)).Action(func() {
-			if err := internal.Clone(url, cloneOptions.path); err != nil {
+		err := spinner.New().Title("Executing git clone").Action(func() {
+			if err := internal.Clone(githubSshUrl, customPath); err != nil {
 				fmt.Println("Error running git clone", err)
 			}
 			fmt.Println("Done")
@@ -191,7 +75,7 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(getCmd)
+	RootCmd.AddCommand(getCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -202,5 +86,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	getCmd.Flags().StringVarP(&subDirectory, "subdirectory", "s", "", "Subdirectory inside the chosen path or workspace")
+	getCmd.Flags().StringVarP(&customPath, "path", "p", "", "Custom path to clone to (it will be passed down to the `git clone` command)")
+	getCmd.Flags().StringVarP(&workspaceName, "workspace", "w", "", "Workspace name to be use when cloning. The path associated will be passed on to git clone command")
 }

@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -9,18 +8,15 @@ import (
 
 // clone a repository to the given path
 func Clone(repository string, path string) error {
-	command := exec.Command("git", "clone", repository, path)
-
-	output, err := command.Output()
-
-	if err != nil {
-		fmt.Println(err)
-		return err
+	command := exec.Command("git", "clone", repository)
+	if path != "" {
+		command = exec.Command("git", "clone", repository, path)
 	}
 
-	fmt.Println(output)
+	// command.Stdout = os.Stdout
+	// command.Stderr = os.Stderr
 
-	return nil
+	return command.Run()
 }
 
 // replace the host in the git ssh url for the given host in the ${host}

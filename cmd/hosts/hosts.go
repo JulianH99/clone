@@ -1,20 +1,20 @@
 /*
 Copyright © 2024 Julianh99 juliancorredor99@gmail.com
 */
-package cmd
+package hosts
 
 import (
 	"github.com/spf13/cobra"
 )
 
 // hostsCmd represents the hosts command
-var hostsCmd = &cobra.Command{
+var HostsCmd = &cobra.Command{
 	Use:   "hosts",
 	Short: "Manage hosts found on the ~/.ssh/config file",
 }
 
 func init() {
-	rootCmd.AddCommand(hostsCmd)
+	HostsCmd.AddCommand(listHostsCmd)
 
 	// Here you will define your flags and configuration settings.
 
