@@ -43,7 +43,7 @@ without issues
 
 ## Usage
 
-# Clone basics
+### Clone basics
 Command shape:
 ```sh
 clone get [domainName] [user/repo]  
@@ -72,7 +72,7 @@ clone [domainName] [gitUrl] -p /path/to/project
 In both cases (`-w` and `-p` ) the project name will be appended to the path.
 `-w` will take precedence over the `-p` flag.
 
-# Domain names
+### Domain names
 You can list available domain names in your ~/.ssh/config file
 ```
 clone domains list
@@ -85,29 +85,29 @@ clone domains list --full
 ```
 which will essentially list all the configuration options inside the ~/.ssh/config file
 
-# Workspaces
+### Workspaces
 you can create, list, edit, and delete workspaces
 
-## list
+#### list
 ```
 clone workspaces list
 ```
-## edit
+#### edit
 ```
 clone workspaces edit [workspaceName]
 ```
 
-## delete
+#### delete
 ```
 clone workspaces delete [workspaceName]
 ```
 
-## create
+#### create
 ```
 clone workspace create
 ```
 
-## Contributing
+#### Contributing
 if there's any feature you'd like to see implemented, feel free to open an
 issue. This project is still under development but I think it's stable enough
 
