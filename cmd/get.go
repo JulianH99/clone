@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"path"
@@ -12,7 +13,6 @@ import (
 	"github.com/JulianH99/clone/internal/dir"
 	"github.com/JulianH99/clone/internal/ui"
 	"github.com/JulianH99/clone/internal/workspaces"
-	"github.com/charmbracelet/huh/spinner"
 	"github.com/spf13/cobra"
 )
 
@@ -34,8 +34,6 @@ var getCmd = &cobra.Command{
 		repoParts := strings.Split(repo, "/")
 
 		githubSshUrl := fmt.Sprintf("git@github.com-%s:%s.git", domainName, repo)
-
-		fmt.Println("this are params", domainName, githubSshUrl)
 
 		if workspaceName != "" {
 			workspaceList := config.GetConfig().Workspaces
@@ -59,17 +57,10 @@ var getCmd = &cobra.Command{
 			fmt.Printf("%s\n", ui.InContainer(fmt.Sprintf("Cloning into path %s", customPath)))
 		}
 
-		err := spinner.New().Title("Executing git clone").Action(func() {
-			if err := internal.Clone(githubSshUrl, customPath); err != nil {
-				fmt.Println("Error running git clone", err)
-			}
-			fmt.Println("Done")
-		}).Run()
+		ctx, cancel := context.WithCancel(context.Background())
+		go internal.Clone(githubSshUrl, customPath, cancel)
 
-		if err != nil {
-			return err
-		}
-
+		<-ctx.Done()
 		return nil
 	},
 }

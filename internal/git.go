@@ -1,22 +1,29 @@
 package internal
 
 import (
+	"context"
+	"fmt"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
 )
 
 // clone a repository to the given path
-func Clone(repository string, path string) error {
+func Clone(repository string, path string, cancel context.CancelFunc) {
 	command := exec.Command("git", "clone", repository)
 	if path != "" {
 		command = exec.Command("git", "clone", repository, path)
 	}
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stdout
 
-	// command.Stdout = os.Stdout
-	// command.Stderr = os.Stderr
+	err := command.Run()
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	return command.Run()
+	cancel()
 }
 
 // replace the host in the git ssh url for the given host in the ${host}
