@@ -35,14 +35,13 @@ var editCmd = &cobra.Command{
 		form := huh.NewForm(
 			huh.NewGroup(
 				huh.NewSelect[int]().
-					Title("Workspace to delete").
+					Title("Workspace to edit").
 					Options(options...).
 					Value(&workspace),
 			),
 		)
 
 		err := form.Run()
-
 		if err != nil {
 			return fmt.Errorf("Error running form %w", err)
 		}
@@ -59,7 +58,7 @@ var editCmd = &cobra.Command{
 							return errors.New("Value cannot be empty")
 						}
 
-						if slices.Contains(workspacesNames, s) {
+						if slices.Contains(workspacesNames, s) && s != workspacesList[workspace].Name {
 							return errors.New("Workspace name already in use")
 						}
 						return nil
@@ -69,7 +68,6 @@ var editCmd = &cobra.Command{
 					Value(&newPath).
 					Validate(func(s string) error {
 						isDir, err := dir.IsDir(s)
-
 						if err != nil {
 							return err
 						}
@@ -83,13 +81,11 @@ var editCmd = &cobra.Command{
 		)
 
 		err = form.Run()
-
 		if err != nil {
 			return err
 		}
 
 		err = config.SetWorkspace(workspace, workspaces.NewWorkspace(newName, newPath))
-
 		if err != nil {
 			return err
 		}
