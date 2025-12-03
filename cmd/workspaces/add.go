@@ -35,11 +35,11 @@ var addCmd = &cobra.Command{
 					Value(&name).
 					Validate(func(s string) error {
 						if s == "" {
-							return errors.New("Value cannot be empty")
+							return errors.New("value cannot be empty")
 						}
 
 						if slices.Contains(workspaceList, s) {
-							return errors.New("Workspace name already in use")
+							return errors.New("workspace name already in use")
 						}
 						return nil
 					}),
@@ -48,13 +48,12 @@ var addCmd = &cobra.Command{
 					Value(&path).
 					Validate(func(s string) error {
 						isDir, err := dir.IsDir(s)
-
 						if err != nil {
 							return err
 						}
 
 						if !isDir {
-							return errors.New("Path provided is not a directory")
+							return errors.New("path provided is not a directory")
 						}
 						return nil
 					}),
@@ -62,14 +61,12 @@ var addCmd = &cobra.Command{
 		)
 
 		err := form.Run()
-
 		if err != nil {
 			return err
 		}
 
 		w := workspaces.NewWorkspace(name, path)
 		err = config.AddNewWorkspace(w)
-
 		if err != nil {
 			return err
 		}

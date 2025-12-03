@@ -43,7 +43,7 @@ var editCmd = &cobra.Command{
 
 		err := form.Run()
 		if err != nil {
-			return fmt.Errorf("Error running form %w", err)
+			return fmt.Errorf("error running form %w", err)
 		}
 		newName := workspacesList[workspace].Name
 		newPath := workspacesList[workspace].Path
@@ -55,11 +55,11 @@ var editCmd = &cobra.Command{
 					Value(&newName).
 					Validate(func(s string) error {
 						if s == "" {
-							return errors.New("Value cannot be empty")
+							return errors.New("value cannot be empty")
 						}
 
 						if slices.Contains(workspacesNames, s) && s != workspacesList[workspace].Name {
-							return errors.New("Workspace name already in use")
+							return errors.New("workspace name already in use")
 						}
 						return nil
 					}),
@@ -73,7 +73,7 @@ var editCmd = &cobra.Command{
 						}
 
 						if !isDir {
-							return errors.New("Path provided is not a directory")
+							return errors.New("path provided is not a directory")
 						}
 						return nil
 					}),

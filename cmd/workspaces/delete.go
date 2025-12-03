@@ -37,12 +37,11 @@ var deleteWorkspacesCmd = &cobra.Command{
 		)
 
 		err := form.Run()
-
 		if err != nil {
-			return fmt.Errorf("Error running form %w", err)
+			return fmt.Errorf("error running form %w", err)
 		}
 
-		config.RemoveWorkspace(workspace, workspaces)
+		_ = config.RemoveWorkspace(workspace, workspaces)
 
 		fmt.Print(ui.InColoredContainer(fmt.Sprintf("Workspace %s deleted", workspaces[workspace].Name)))
 

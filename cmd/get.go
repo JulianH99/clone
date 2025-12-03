@@ -27,7 +27,7 @@ var getCmd = &cobra.Command{
 	Short: "Clones a github repository. Specify [domainName] [user]/[repoName]",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 2 {
-			return errors.New("Not enough parameters. Please specify [domainName] [user]/[repoName]")
+			return errors.New("not enough parameters. Please specify [domainName] [user]/[repoName]")
 		}
 
 		domainName, repo := args[0], args[1]
@@ -40,7 +40,7 @@ var getCmd = &cobra.Command{
 			workspacesNames := workspaces.WorkspacesToNames(workspaceList)
 
 			if !slices.Contains(workspacesNames, workspaceName) {
-				return errors.New("No workspace with the provided name was found")
+				return errors.New("no workspace with the provided name was found")
 			}
 
 			// workspace will be used over custom path if both flags are
