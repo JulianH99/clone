@@ -31,17 +31,16 @@ func init() {
 	viper.SetConfigName("clone")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("$HOME/.config/")
-	viper.SafeWriteConfig()
+	_ = viper.SafeWriteConfig()
 	emptyArray := make([]any, 0)
 	viper.SetDefault("workspaces", emptyArray)
 
 	err := viper.ReadInConfig()
-
 	if err != nil {
 		fmt.Println("error reading config file. please check your .config path", err)
 	}
 
 	RootCmd.AddCommand(hosts.HostsCmd)
 	RootCmd.AddCommand(workspaces.WorkspacesCmd)
-
+	RootCmd.AddCommand(linkCmd)
 }
