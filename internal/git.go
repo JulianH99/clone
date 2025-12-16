@@ -12,6 +12,7 @@ import (
 // clone a repository to the given path
 func Clone(repository string, path string, cancel context.CancelFunc) {
 	command := exec.Command("git", "clone", repository)
+
 	if path != "" {
 		command = exec.Command("git", "clone", repository, path)
 	}
