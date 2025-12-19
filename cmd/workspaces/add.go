@@ -25,9 +25,6 @@ var addCmd = &cobra.Command{
 			path string
 		)
 
-		hostAsOptions := make([]huh.Option[string], 0)
-		hostAsOptions = append(hostAsOptions, huh.NewOption("None", ""))
-
 		form := huh.NewForm(
 			huh.NewGroup(
 				huh.NewInput().

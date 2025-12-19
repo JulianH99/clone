@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/JulianH99/clone/cmd/hosts"
@@ -31,17 +30,15 @@ func init() {
 	viper.SetConfigName("clone")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("$HOME/.config/")
-	viper.SafeWriteConfig()
 	emptyArray := make([]any, 0)
 	viper.SetDefault("workspaces", emptyArray)
+	viper.SetDefault("links", emptyArray)
 
 	err := viper.ReadInConfig()
-
 	if err != nil {
-		fmt.Println("error reading config file. please check your .config path", err)
+		_ = viper.SafeWriteConfig()
 	}
 
 	RootCmd.AddCommand(hosts.HostsCmd)
 	RootCmd.AddCommand(workspaces.WorkspacesCmd)
-
 }

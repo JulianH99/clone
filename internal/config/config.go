@@ -11,6 +11,9 @@ type config struct {
 
 func GetConfig() config {
 	var c config
-	viper.Unmarshal(&c)
+	err := viper.Unmarshal(&c)
+	if err != nil {
+		panic(err)
+	}
 	return c
 }

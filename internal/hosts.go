@@ -7,11 +7,9 @@ import (
 	"strings"
 )
 
-type host string
-
-func parseConfigFile(contents []byte) []host {
+func parseConfigFile(contents []byte) []string {
 	lines := strings.Split(string(contents), "\n")
-	hosts := make([]host, 0)
+	hosts := make([]string, 0)
 	hostsRegex := regexp.MustCompile(`(?i)host\s`)
 
 	for _, line := range lines {
@@ -22,7 +20,7 @@ func parseConfigFile(contents []byte) []host {
 		if hostsRegex.Match([]byte(line)) {
 			parts := strings.Split(line, " ")
 			h := strings.TrimSpace(parts[1])
-			hosts = append(hosts, host(h))
+			hosts = append(hosts, h)
 		}
 	}
 
@@ -37,16 +35,14 @@ func readSshConfigFile() ([]byte, error) {
 
 	sshConfigPath := path.Join(homedir, ".ssh", "config")
 	contents, err := os.ReadFile(sshConfigPath)
-
 	if err != nil {
 		return nil, err
 	}
 	return contents, nil
 }
 
-func SshHosts() ([]host, error) {
+func SshHosts() ([]string, error) {
 	sshConfigContents, err := readSshConfigFile()
-
 	if err != nil {
 		return nil, err
 	}
