@@ -15,10 +15,10 @@ func HostsToOptions(hosts []string) []huh.Option[string] {
 	return options
 }
 
-func WorkspacesToOptions(ws []workspaces.Workspace) []huh.Option[string] {
-	options := make([]huh.Option[string], len(ws))
+func WorkspacesToOptions(ws []workspaces.Workspace) []huh.Option[workspaces.Workspace] {
+	options := make([]huh.Option[workspaces.Workspace], len(ws))
 	for i, w := range ws {
-		options[i] = huh.NewOption(fmt.Sprintf("%s => %s", w.Name, w.Path), w.Name)
+		options[i] = huh.NewOption(fmt.Sprintf("%s => %s", w.Name, w.Path), w)
 	}
 
 	return options

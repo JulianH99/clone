@@ -4,19 +4,72 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
+	"fmt"
 	"os"
 
 	"github.com/JulianH99/clone/cmd/hosts"
-	"github.com/JulianH99/clone/cmd/workspaces"
+	workspacesCmd "github.com/JulianH99/clone/cmd/workspaces"
+	"github.com/JulianH99/clone/internal"
+	"github.com/JulianH99/clone/internal/config"
+	"github.com/JulianH99/clone/internal/dir"
+	"github.com/JulianH99/clone/internal/ui"
+	"github.com/JulianH99/clone/internal/workspaces"
+	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+)
+
+var (
+	host          string
+	workspaceName string
 )
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "clone",
 	Short: "Clone github projects to a saved workspace using a registered custom domain from your ssh config file",
-	Long:  `Use clone [domainName] [gitUser]/[repoName] to clone to the current path`,
+	Long:  `Use clone [gitUser]/[repoName] to clone to the current path`,
+	Args:  cobra.MinimumNArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		repo := args[0]
+		cfg := config.GetConfig()
+		rawHosts, err := internal.SshHosts()
+		if err != nil {
+			return err
+		}
+
+		hosts := ui.HostsToOptions(rawHosts)
+		workspaceOptions := ui.WorkspacesToOptions(cfg.Workspaces)
+		var workspace workspaces.Workspace
+
+		form := huh.NewForm(
+			huh.NewGroup(
+				huh.NewSelect[string]().
+					Title("Host").
+					Options(hosts...).
+					Value(&host),
+				huh.NewSelect[workspaces.Workspace]().
+					Title("Workspace").
+					Options(workspaceOptions...).
+					Value(&workspace),
+			),
+		)
+
+		err = form.Run()
+		if err != nil {
+			return err
+		}
+
+		sshUrl := fmt.Sprintf("git@%s:%s.git", host, repo)
+		p := dir.ExpandHome(workspace.Path)
+
+		ctx, cancel := context.WithCancel(context.Background())
+		go internal.Clone(sshUrl, p, cancel)
+		<-ctx.Done()
+
+		return nil
+	},
 }
 
 func Execute() {
@@ -29,7 +82,7 @@ func Execute() {
 func init() {
 	viper.SetConfigName("clone")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("$HOME/.config/")
+	viper.AddConfigPath("$HOME/.config/") // TODO: use xdg config specification for windows support as well
 	emptyArray := make([]any, 0)
 	viper.SetDefault("workspaces", emptyArray)
 	viper.SetDefault("links", emptyArray)
@@ -39,6 +92,8 @@ func init() {
 		_ = viper.SafeWriteConfig()
 	}
 
+	RootCmd.Flags().StringVarP(&host, "host", "t", "", "Host to be used when cloning, you can specify a shorthand, like work (for github.com-work) or the full host")
+	RootCmd.Flags().StringVarP(&workspaceName, "workspace", "w", "", "Workspace to be used when cloning")
 	RootCmd.AddCommand(hosts.HostsCmd)
-	RootCmd.AddCommand(workspaces.WorkspacesCmd)
+	RootCmd.AddCommand(workspacesCmd.WorkspacesCmd)
 }
