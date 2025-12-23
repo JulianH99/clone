@@ -10,11 +10,12 @@ import (
 )
 
 // clone a repository to the given path
-func Clone(repository string, path string, cancel context.CancelFunc) {
-	command := exec.Command("git", "clone", repository)
+func Clone(ctx context.Context, cancel context.CancelFunc, repository string, path string) {
+	defer cancel()
+	command := exec.CommandContext(ctx, "git", "clone", repository)
 
 	if path != "" {
-		command = exec.Command("git", "clone", repository, path)
+		command = exec.CommandContext(ctx, "git", "clone", repository, path)
 	}
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stdout
@@ -23,8 +24,6 @@ func Clone(repository string, path string, cancel context.CancelFunc) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	cancel()
 }
 
 // replace the host in the git ssh url for the given host in the ${host}

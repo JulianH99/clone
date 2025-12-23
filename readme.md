@@ -46,7 +46,7 @@ without issues
 ### Clone basics
 Command shape:
 ```sh
-clone get [domainName] [user/repo]  
+clone get [hostName] [user/repo]  
 ```
 by default it'll clone in the current directory
 Examples
@@ -56,7 +56,7 @@ clone endrock Endrock/luseta
 
 you can use a saved workspace
 ```sh
-clone [domainName] [giturl] -w work
+clone [hostName] [giturl] -w work
 ```
 
 each workspace is composed by:
@@ -65,23 +65,23 @@ each workspace is composed by:
 
 you can also clone to a custom path with
 
-```
-clone [domainName] [gitUrl] -p /path/to/project
+```sh
+clone [hostName] [gitUrl] -p /path/to/project
 ```
 
 In both cases (`-w` and `-p` ) the project name will be appended to the path.
 `-w` will take precedence over the `-p` flag.
 
-### Domain names
-You can list available domain names in your ~/.ssh/config file
+### host names
+You can list available host names in your ~/.ssh/config file
 ```
-clone domains list
+clone hosts list
 ```
-This will show a list of all the domains inside the ~/.ssh/config file
+This will show a list of all the hosts inside the ~/.ssh/config file
 
 and, if you want to see all the available configurations, you can write
 ```
-clone domains list --full
+clone hosts list --full
 ```
 which will essentially list all the configuration options inside the ~/.ssh/config file
 
@@ -112,6 +112,6 @@ if there's any feature you'd like to see implemented, feel free to open an
 issue. This project is still under development but I think it's stable enough
 
 ## Planned features
+- [ ] Workspace and host linking
 - [ ] Support for themes
 - [ ] Full TUI besides command support
-- [ ] Workspace and domain linking

@@ -10,6 +10,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/JulianH99/clone/cmd/hosts"
 	workspacesCmd "github.com/JulianH99/clone/cmd/workspaces"
@@ -32,7 +33,7 @@ var (
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "clone",
-	Short: "Clone github projects to a saved workspace using a registered custom domain from your ssh config file",
+	Short: "Clone github projects to a saved workspace using a registered custom host from your ssh config file",
 	Long:  `Use clone [gitUser]/[repoName] to clone to the current path`,
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -122,8 +123,8 @@ var RootCmd = &cobra.Command{
 			)
 		}
 
-		ctx, cancel := context.WithCancel(context.Background())
-		go internal.Clone(sshUrl, p, cancel)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		internal.Clone(ctx, cancel, sshUrl, p)
 		<-ctx.Done()
 
 		return nil
