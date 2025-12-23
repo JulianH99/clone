@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -16,10 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	customPath    string
-	workspaceName string
-)
+var customPath string
 
 // getCmd represents the get command
 var getCmd = &cobra.Command{
@@ -33,7 +31,27 @@ var getCmd = &cobra.Command{
 		domainName, repo := args[0], args[1]
 		repoParts := strings.Split(repo, "/")
 
-		githubSshUrl := fmt.Sprintf("git@github.com-%s:%s.git", domainName, repo)
+		domainCheck, err := regexp.Compile("w+.w{2,3}")
+		if err != nil {
+			panic(err)
+		}
+
+		var githubSshUrl string
+		if domainCheck.MatchString(domainName) {
+			githubSshUrl = fmt.Sprintf("git@%s:%s.git", domainName, repo)
+		} else {
+			githubSshUrl = fmt.Sprintf("git@github.com-%s:%s.git", domainName, repo)
+		}
+
+		/* links := config.GetConfig().Links
+		var link config.Link
+
+		for _, l := range links {
+			if l.Host == domainName {
+				link = l
+				break
+			}
+		} */
 
 		if workspaceName != "" {
 			workspaceList := config.GetConfig().Workspaces
@@ -66,8 +84,6 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(getCmd)
-
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
@@ -77,6 +93,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	getCmd.Flags().StringVarP(&customPath, "path", "p", "", "Custom path to clone to (it will be passed down to the `git clone` command)")
-	getCmd.Flags().StringVarP(&workspaceName, "workspace", "w", "", "Workspace name to be use when cloning. The path associated will be passed on to git clone command")
+	// getCmd.Flags().StringVarP(&customPath, "path", "p", "", "Custom path to clone to (it will be passed down to the `git clone` command)")
+	// getCmd.Flags().StringVarP(&workspaceName, "workspace", "w", "", "Workspace name to be use when cloning. The path associated will be passed on to git clone command")
 }

@@ -23,3 +23,7 @@ func WorkspacesToOptions(ws []workspaces.Workspace) []huh.Option[workspaces.Work
 
 	return options
 }
+
+func WithDefault[T comparable](options []huh.Option[T]) []huh.Option[T] {
+	return append(options, huh.NewOption("None", *new(T)))
+}

@@ -7,6 +7,9 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
+	"regexp"
+	"strings"
 
 	"github.com/JulianH99/clone/cmd/hosts"
 	workspacesCmd "github.com/JulianH99/clone/cmd/workspaces"
@@ -32,27 +35,57 @@ var RootCmd = &cobra.Command{
 	Long:  `Use clone [gitUser]/[repoName] to clone to the current path`,
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		repo := args[0]
-		cfg := config.GetConfig()
-		rawHosts, err := internal.SshHosts()
+		var (
+			repo          = args[0]
+			cfg           = config.GetConfig()
+			rawHosts, err = internal.SshHosts()
+			fields        []huh.Field
+			workspace     workspaces.Workspace
+		)
+
+		if err != nil {
+			return err
+		}
+		repoValidation, err := regexp.Compile("^[a-zA-Z0-9-_.]+/[a-zA-Z0-9-_.]+$")
 		if err != nil {
 			return err
 		}
 
-		hosts := ui.HostsToOptions(rawHosts)
-		workspaceOptions := ui.WorkspacesToOptions(cfg.Workspaces)
-		var workspace workspaces.Workspace
+		if !repoValidation.MatchString(repo) {
+			return fmt.Errorf("invalid repository name, please use the format user/repoName")
+		}
 
-		form := huh.NewForm(
-			huh.NewGroup(
-				huh.NewSelect[string]().
-					Title("Host").
-					Options(hosts...).
-					Value(&host),
+		hosts := ui.HostsToOptions(rawHosts)
+		workspaceOptions := ui.WithDefault(ui.WorkspacesToOptions(cfg.Workspaces))
+
+		fields = append(fields,
+			huh.NewSelect[string]().
+				Title("Host").
+				Options(hosts...).
+				Value(&host),
+		)
+
+		if workspaceName == "" {
+			fields = append(fields,
 				huh.NewSelect[workspaces.Workspace]().
 					Title("Workspace").
 					Options(workspaceOptions...).
 					Value(&workspace),
+			)
+		} else {
+			for _, w := range cfg.Workspaces {
+				if w.Name == workspaceName {
+					workspace = w
+				}
+			}
+			if workspace.Name == "" {
+				return fmt.Errorf("invalid workspace name. Please see available workspaces with clone workspaces list")
+			}
+		}
+
+		form := huh.NewForm(
+			huh.NewGroup(
+				fields...,
 			),
 		)
 
@@ -62,7 +95,13 @@ var RootCmd = &cobra.Command{
 		}
 
 		sshUrl := fmt.Sprintf("git@%s:%s.git", host, repo)
-		p := dir.ExpandHome(workspace.Path)
+		p := ""
+		if workspace.Path != "" {
+			p = path.Join(
+				dir.ExpandHome(workspace.Path),
+				strings.Split(repo, "/")[1],
+			)
+		}
 
 		ctx, cancel := context.WithCancel(context.Background())
 		go internal.Clone(sshUrl, p, cancel)
