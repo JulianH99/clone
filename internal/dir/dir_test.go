@@ -10,7 +10,7 @@ import (
 
 func TestExpandHome(t *testing.T) {
 	homedir, _ := os.UserHomeDir()
-	testPath := "~/Documents/projects/personal/"
+	testPath := "~/Documents/projects/personal"
 	expected := path.Join(homedir, "/Documents/projects/personal/")
 
 	newPath := dir.ExpandHome(testPath)

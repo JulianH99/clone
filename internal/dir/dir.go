@@ -12,6 +12,7 @@ func ExpandHome(p string) string {
 	if err != nil {
 		return p
 	}
+	homedir = strings.TrimSuffix(homedir, "/")
 	return strings.Replace(p, "~", homedir, 1)
 }
 

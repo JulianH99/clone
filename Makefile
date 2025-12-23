@@ -8,4 +8,10 @@ run:
 	@go run main.go
 
 
+build:
+	@go build -o build/clone .
+
+test:
+	@go test ./...
+
 # end
