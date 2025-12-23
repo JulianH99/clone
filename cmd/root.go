@@ -124,8 +124,15 @@ var RootCmd = &cobra.Command{
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
-		internal.Clone(ctx, cancel, sshUrl, p)
-		<-ctx.Done()
+		defer cancel()
+
+		err = internal.Clone(ctx, sshUrl, p)
+		if err != nil {
+			fmt.Println(ui.InContainer(
+				fmt.Sprintf("Error cloning %s to %s: %s", repo, p, err),
+			))
+			return err
+		}
 
 		return nil
 	},
