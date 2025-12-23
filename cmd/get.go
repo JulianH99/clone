@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var customPath string
+var _customPath string
 
 // getCmd represents the get command
 var getCmd = &cobra.Command{
@@ -65,18 +65,18 @@ var getCmd = &cobra.Command{
 			// provided
 			for _, w := range workspaceList {
 				if w.Name == workspaceName {
-					customPath = w.Path
+					_customPath = w.Path
 				}
 			}
 		}
 
-		if customPath != "" {
-			customPath = path.Join(dir.ExpandHome(customPath), repoParts[1])
-			fmt.Printf("%s\n", ui.InContainer(fmt.Sprintf("Cloning into path %s", customPath)))
+		if _customPath != "" {
+			_customPath = path.Join(dir.ExpandHome(_customPath), repoParts[1])
+			fmt.Printf("%s\n", ui.InContainer(fmt.Sprintf("Cloning into path %s", _customPath)))
 		}
 
 		ctx, cancel := context.WithCancel(context.Background())
-		go internal.Clone(githubSshUrl, customPath, cancel)
+		go internal.Clone(githubSshUrl, _customPath, cancel)
 
 		<-ctx.Done()
 		return nil

@@ -26,6 +26,7 @@ import (
 var (
 	host          string
 	workspaceName string
+	customPath    string
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -96,10 +97,18 @@ var RootCmd = &cobra.Command{
 
 		sshUrl := fmt.Sprintf("git@%s:%s.git", host, repo)
 		p := ""
+		repoName := strings.Split(repo, "/")[1]
 		if workspace.Path != "" {
 			p = path.Join(
 				dir.ExpandHome(workspace.Path),
-				strings.Split(repo, "/")[1],
+				repoName,
+			)
+		}
+
+		if customPath != "" {
+			p = path.Join(
+				dir.ExpandHome(customPath),
+				repoName,
 			)
 		}
 
@@ -133,6 +142,7 @@ func init() {
 
 	RootCmd.Flags().StringVarP(&host, "host", "t", "", "Host to be used when cloning, you can specify a shorthand, like work (for github.com-work) or the full host")
 	RootCmd.Flags().StringVarP(&workspaceName, "workspace", "w", "", "Workspace to be used when cloning")
+	RootCmd.Flags().StringVarP(&customPath, "path", "p", "", "Custom path to be pased to git command. Will be used over workspace if both plags are provided")
 	RootCmd.AddCommand(hosts.HostsCmd)
 	RootCmd.AddCommand(workspacesCmd.WorkspacesCmd)
 }
