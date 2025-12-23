@@ -2,7 +2,7 @@ package internal
 
 import (
 	"os"
-	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -33,7 +33,7 @@ func readSshConfigFile() ([]byte, error) {
 		return nil, err
 	}
 
-	sshConfigPath := path.Join(homedir, ".ssh", "config")
+	sshConfigPath := filepath.Join(homedir, ".ssh", "config")
 	contents, err := os.ReadFile(sshConfigPath)
 	if err != nil {
 		return nil, err

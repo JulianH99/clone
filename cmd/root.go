@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -111,18 +111,19 @@ var RootCmd = &cobra.Command{
 		p := ""
 		repoName := strings.Split(repo, "/")[1]
 		if workspace.Path != "" {
-			p = path.Join(
+			p = filepath.Join(
 				dir.ExpandHome(workspace.Path),
 				repoName,
 			)
 		}
 
 		if customPath != "" {
-			p = path.Join(
+			p = filepath.Join(
 				dir.ExpandHome(customPath),
 				repoName,
 			)
 		}
+		p = filepath.Clean(p)
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 		defer cancel()
