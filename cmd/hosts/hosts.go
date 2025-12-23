@@ -1,28 +1,45 @@
-/*
-Copyright © 2024 Julianh99 juliancorredor99@gmail.com
-*/
 package hosts
 
 import (
+	"fmt"
+
+	"github.com/JulianH99/clone/internal"
+	"github.com/JulianH99/clone/internal/ui"
+	"github.com/charmbracelet/bubbles/table"
 	"github.com/spf13/cobra"
 )
 
-// hostsCmd represents the hosts command
-var HostsCmd = &cobra.Command{
+// listHostsCmd represents the list hosts command
+var ListsHostsCmd = &cobra.Command{
 	Use:   "hosts",
-	Short: "Manage hosts found on the ~/.ssh/config file",
-}
+	Short: "List available hosts",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		hosts, err := internal.SshHosts()
+		if err != nil {
+			return err
+		}
 
-func init() {
-	HostsCmd.AddCommand(listHostsCmd)
+		columns := []table.Column{
+			{Title: "Host", Width: 50},
+		}
 
-	// Here you will define your flags and configuration settings.
+		rows := []table.Row{}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// hostsCmd.PersistentFlags().String("foo", "", "A help for foo")
+		for _, host := range hosts {
+			rows = append(rows, table.Row{string(host)})
+		}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// hostsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+		t := table.New(
+			table.WithColumns(columns),
+			table.WithRows(rows),
+			table.WithHeight(len(hosts)),
+			table.WithFocused(false),
+		)
+
+		t.SetStyles(ui.TableStyles())
+
+		fmt.Print(ui.InContainer(t.View()))
+
+		return nil
+	},
 }

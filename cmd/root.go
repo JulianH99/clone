@@ -19,6 +19,7 @@ import (
 	"github.com/JulianH99/clone/internal/dir"
 	"github.com/JulianH99/clone/internal/ui"
 	"github.com/JulianH99/clone/internal/workspaces"
+	"github.com/adrg/xdg"
 	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -148,7 +149,7 @@ func Execute() {
 func init() {
 	viper.SetConfigName("clone")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("$HOME/.config/") // TODO: use xdg config specification for windows support as well
+	viper.AddConfigPath(xdg.ConfigHome)
 	emptyArray := make([]any, 0)
 	viper.SetDefault("workspaces", emptyArray)
 	viper.SetDefault("links", emptyArray)
@@ -161,6 +162,6 @@ func init() {
 	RootCmd.Flags().StringVarP(&host, "host", "t", "", "Host to be used when cloning, you can specify a shorthand, like work (for github.com-work) or the full host")
 	RootCmd.Flags().StringVarP(&workspaceName, "workspace", "w", "", "Workspace to be used when cloning")
 	RootCmd.Flags().StringVarP(&customPath, "path", "p", "", "Custom path to be pased to git command. Will be used over workspace if both plags are provided")
-	RootCmd.AddCommand(hosts.HostsCmd)
+	RootCmd.AddCommand(hosts.ListsHostsCmd)
 	RootCmd.AddCommand(workspacesCmd.WorkspacesCmd)
 }
