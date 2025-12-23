@@ -46,44 +46,33 @@ without issues
 ### Clone basics
 Command shape:
 ```sh
-clone get [hostName] [user/repo]  
+clone  [user/repo]  
 ```
-by default it'll clone in the current directory
-Examples
+This will ask the user to choose a host and a workspace, with the posibility to
+choose no workspace. It is important to note that a host is required, otherwise
+this program makes no sense and you can just use git clone as normal.  
+This command offers the following options as well:
 ```
-clone endrock Endrock/luseta
+clone [owner/repo] -w [worspkace] -s [host] -p [customPath]
 ```
+- `-w` will take the workspace name and will not ask for the worskpace again in
+  the form
 
-you can use a saved workspace
-```sh
-clone [hostName] [giturl] -w work
-```
-
-each workspace is composed by:
-- name
-- path
-
-you can also clone to a custom path with
-
-```sh
-clone [hostName] [gitUrl] -p /path/to/project
-```
-
-In both cases (`-w` and `-p` ) the project name will be appended to the path.
-`-w` will take precedence over the `-p` flag.
+- `-t` will take the host name and will not ask for the host again in the form.
+  You can type the hole form or just the hostname (e.g. `github.com-personal` or
+just `personal`)
+- `-p` will be a custom path to git clone to and will take precedence over the
+workspace's path
 
 ### host names
 You can list available host names in your ~/.ssh/config file
 ```
-clone hosts list
+clone hosts 
 ```
-This will show a list of all the hosts inside the ~/.ssh/config file
+This will show a list of all the hosts inside the ~/.ssh/config file, the same
+list appears of course when you run `clone [owner/repo]` without additional
+arguments
 
-and, if you want to see all the available configurations, you can write
-```
-clone hosts list --full
-```
-which will essentially list all the configuration options inside the ~/.ssh/config file
 
 ### Workspaces
 you can create, list, edit, and delete workspaces
@@ -112,6 +101,5 @@ if there's any feature you'd like to see implemented, feel free to open an
 issue. This project is still under development but I think it's stable enough
 
 ## Planned features
-- [ ] Workspace and host linking
-- [ ] Support for themes
-- [ ] Full TUI besides command support
+- [ ] origin assignment, for cases like `git remote add origin
+git@github.com-domain:owner/repo.git`, with an interface like `clone [owner/repo] -r [remoteName]`
