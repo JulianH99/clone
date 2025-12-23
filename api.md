@@ -15,5 +15,5 @@
 - clone the repo
 
 `clone user/repo -w workspace -p path`
-- take the workspace precedence
+- take the path precedence
 - clone the repo

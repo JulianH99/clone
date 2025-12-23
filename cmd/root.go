@@ -59,12 +59,20 @@ var RootCmd = &cobra.Command{
 		hosts := ui.HostsToOptions(rawHosts)
 		workspaceOptions := ui.WithDefault(ui.WorkspacesToOptions(cfg.Workspaces))
 
-		fields = append(fields,
-			huh.NewSelect[string]().
-				Title("Host").
-				Options(hosts...).
-				Value(&host),
-		)
+		if host == "" {
+			fields = append(fields,
+				huh.NewSelect[string]().
+					Title("Host").
+					Options(hosts...).
+					Value(&host),
+			)
+		} else {
+			for _, h := range rawHosts {
+				if h == host || strings.Contains(h, host) {
+					host = h
+				}
+			}
+		}
 
 		if workspaceName == "" {
 			fields = append(fields,
@@ -84,15 +92,17 @@ var RootCmd = &cobra.Command{
 			}
 		}
 
-		form := huh.NewForm(
-			huh.NewGroup(
-				fields...,
-			),
-		)
+		if len(fields) != 0 {
+			form := huh.NewForm(
+				huh.NewGroup(
+					fields...,
+				),
+			)
 
-		err = form.Run()
-		if err != nil {
-			return err
+			err = form.Run()
+			if err != nil {
+				return err
+			}
 		}
 
 		sshUrl := fmt.Sprintf("git@%s:%s.git", host, repo)
