@@ -53,7 +53,7 @@ An AUR package is soon to come
 ### Clone basics
 Command shape:
 ```sh
-clone  [user/repo]  
+clone [owner/repo]  
 ```
 This will ask the user to choose a host and a workspace, with the posibility to
 choose no workspace. It is important to note that a host is required, otherwise
